@@ -16,4 +16,14 @@ export const env = {
   emailFrom: process.env.EMAIL_FROM || "",
 
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:3000",
+
+  // Google
+  googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+  googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL || "",
+
+  // LinkedIn
+  linkedinClientId: process.env.LINKEDIN_CLIENT_ID || "",
+  linkedinClientSecret: process.env.LINKEDIN_CLIENT_SECRET || "",
+  linkedinCallbackUrl: process.env.LINKEDIN_CALLBACK_URL || "",
 };

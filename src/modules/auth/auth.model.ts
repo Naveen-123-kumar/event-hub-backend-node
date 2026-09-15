@@ -4,6 +4,9 @@ export interface IUser extends Document {
   email: string;
   password: string;
   isEmailVerified: boolean;
+  authProvider: "local" | "google" | "linkedin";
+
+  providerId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -77,6 +80,16 @@ const userSchema = new Schema<IUser>(
     isEmailVerified: {
       type: Boolean,
       default: false,
+    },
+
+    authProvider: {
+      type: String,
+      enum: ["local", "google", "linkedin"],
+      default: "local",
+    },
+
+    providerId: {
+      type: String,
     },
   },
   {

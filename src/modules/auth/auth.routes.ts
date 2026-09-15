@@ -10,6 +10,8 @@ import {
   generateOtpController,
   validateOtpController,
   verifyEmailController,
+  googleLoginController,
+  googleCallbackController,
 } from "./auth.controller";
 
 const router = Router();
@@ -23,5 +25,7 @@ router.post("/reset-password", resetPasswordController);
 router.post("/generate-otp", generateOtpController);
 router.post("/validate-otp", validateOtpController);
 router.post("/verify-email", verifyEmailController);
+router.get("/google", googleLoginController);
+router.get("/google/callback", googleCallbackController);
 
 export default router;

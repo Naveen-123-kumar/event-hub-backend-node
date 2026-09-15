@@ -21,8 +21,11 @@ import {
 
 import jwt from "jsonwebtoken";
 import { RefreshToken } from "./auth.model";
-import { generateAccessToken } from "../../utils/jwt";
+import { google } from "googleapis";
 import { env } from "../../config/env";
+import { User } from "./auth.model";
+import { generateAccessToken } from "../../utils/jwt";
+import { getGoogleAuthUrl } from "./google.service";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -321,6 +324,89 @@ export const verifyEmailController = async (
     res.status(500).json({
       success: false,
       message: "Internal server error",
+    });
+  }
+};
+
+export const googleLoginController = (_req: Request, res: Response) => {
+  const authUrl = getGoogleAuthUrl();
+  return res.redirect(authUrl);
+};
+
+export const googleCallbackController = async (req: Request, res: Response) => {
+  try {
+    const { code } = req.query;
+
+    if (!code || typeof code !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Google authorization code is missing",
+      });
+    }
+
+    const oauth2Client = new google.auth.OAuth2(
+      env.googleClientId,
+      env.googleClientSecret,
+      env.googleCallbackUrl,
+    );
+
+    const { tokens } = await oauth2Client.getToken(code);
+
+    oauth2Client.setCredentials(tokens);
+
+    const oauth2 = google.oauth2({
+      auth: oauth2Client,
+      version: "v2",
+    });
+
+    const { data } = await oauth2.userinfo.get();
+
+    if (!data.email) {
+      return res.status(400).json({
+        success: false,
+        message: "Google email not available",
+      });
+    }
+
+    const googleId = data.id;
+
+    if (!googleId) {
+      return res.status(400).json({
+        success: false,
+        message: "Google user ID not available",
+      });
+    }
+
+    let user = await User.findOne({
+      email: data.email,
+    });
+
+    if (!user) {
+      user = await User.create({
+        email: data.email,
+        isEmailVerified: true,
+        authProvider: "google",
+        providerId: googleId,
+      });
+    } else if (!user.providerId) {
+      user.providerId = googleId;
+      user.authProvider = "google";
+      user.isEmailVerified = true;
+
+      await user.save();
+    }
+
+    const accessToken = generateAccessToken(user._id.toString());
+
+    return res.redirect(
+      `${env.frontendUrl}/oauth-success?token=${accessToken}`,
+    );
+  } catch (error) {
+    console.error("Google authentication error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Google authentication failed",
     });
   }
 };
