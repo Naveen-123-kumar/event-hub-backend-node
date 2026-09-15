@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+
 import { User, PasswordResetToken, Otp } from "./auth.model";
 import {
   RegisterInput,
@@ -12,6 +13,8 @@ import {
 } from "./auth.validation";
 import { RefreshToken } from "./auth.model";
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwt";
+import { sendPasswordResetEmail } from "../services/email.service";
+import { env } from "../../config/env";
 
 export const registerUser = async (data: RegisterInput) => {
   const { email, password } = data;
@@ -73,45 +76,68 @@ export const loginUser = async (data: LoginInput) => {
   };
 };
 
-export const forgotPassword = async (data: ForgotPasswordInput) => {
+export const forgotPassword = async (
+  data: ForgotPasswordInput,
+): Promise<void> => {
   const { email } = data;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({
+    email,
+  });
 
   if (!user) {
-    throw new Error("If the email exists, a reset link will be sent");
+    throw new Error("User not found");
   }
 
-  // Remove any existing reset tokens
+  // Delete previous reset tokens
   await PasswordResetToken.deleteMany({
     userId: user._id,
   });
 
+  // Generate a NEW password-reset token
   const resetToken = crypto.randomBytes(32).toString("hex");
+
+  // Hash token before storing it
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // Token valid for 15 minutes
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
   await PasswordResetToken.create({
     userId: user._id,
-    token: resetToken,
-    expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+    token: hashedToken,
+    expiresAt,
   });
 
-  return {
-    resetToken,
-    expiresAt: new Date(Date.now() + 15 * 60 * 1000),
-  };
+  // IMPORTANT:
+  // Send RAW token in email
+  const resetUrl = `${env.frontendUrl}/reset-password?token=${resetToken}`;
+
+  console.log("RESET URL:", resetUrl);
+
+  await sendPasswordResetEmail(user.email, resetUrl);
 };
 
-export const resetPassword = async (data: ResetPasswordInput) => {
+export const resetPassword = async (
+  data: ResetPasswordInput,
+): Promise<void> => {
   const { token, password } = data;
 
-  const resetToken = await PasswordResetToken.findOne({
-    token,
-  });
+  // Hash the token received from frontend
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
+  // Find reset token
+  const resetToken = await PasswordResetToken.findOne({
+    token: hashedToken,
+  });
   if (!resetToken) {
     throw new Error("Invalid or expired reset token");
   }
 
+  // Check expiry
   if (resetToken.expiresAt < new Date()) {
     await PasswordResetToken.deleteOne({
       _id: resetToken._id,
@@ -120,18 +146,18 @@ export const resetPassword = async (data: ResetPasswordInput) => {
     throw new Error("Reset token has expired");
   }
 
+  // Hash new password
   const hashedPassword = await bcrypt.hash(password, 12);
 
+  // Update user password
   await User.findByIdAndUpdate(resetToken.userId, {
     password: hashedPassword,
   });
 
-  // Token can only be used once
+  // Delete token so it cannot be reused
   await PasswordResetToken.deleteOne({
     _id: resetToken._id,
   });
-
-  return true;
 };
 
 export const generateOtp = async (data: GenerateOtpInput) => {

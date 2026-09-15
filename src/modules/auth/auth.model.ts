@@ -13,6 +13,7 @@ export interface IRefreshToken extends Document {
   token: string;
   expiresAt: Date;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IOtp extends Document {
@@ -29,7 +30,33 @@ export interface IPasswordResetToken extends Document {
   token: string;
   expiresAt: Date;
   createdAt: Date;
+  updatedAt: Date;
 }
+
+const passwordResetTokenSchema = new Schema<IPasswordResetToken>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    token: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
+    expiresAt: {
+      type: Date,
+      required: true,
+      index: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 
 const userSchema = new Schema<IUser>(
   {
@@ -58,31 +85,6 @@ const userSchema = new Schema<IUser>(
 );
 
 const refreshTokenSchema = new Schema<IRefreshToken>(
-  {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
-    token: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-
-    expiresAt: {
-      type: Date,
-      required: true,
-      index: true,
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
-const passwordResetTokenSchema = new Schema<IPasswordResetToken>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -136,7 +138,6 @@ const otpSchema = new Schema<IOtp>(
     timestamps: true,
   },
 );
-
 export const Otp = mongoose.model<IOtp>("Otp", otpSchema);
 export const RefreshToken = mongoose.model<IRefreshToken>(
   "RefreshToken",

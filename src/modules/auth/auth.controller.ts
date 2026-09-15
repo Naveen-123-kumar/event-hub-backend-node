@@ -180,63 +180,53 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const forgotPasswordController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const forgotPasswordController = async (req: Request, res: Response) => {
   try {
-    const validatedData = forgotPasswordSchema.parse(req.body);
+    const data = forgotPasswordSchema.parse(req.body);
 
-    const result = await forgotPassword(validatedData);
+    await forgotPassword(data);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "If the email exists, a password reset link will be sent",
-      data: result,
+      message:
+        "If the email is registered, a password reset link has been sent.",
     });
   } catch (error) {
     if (error instanceof Error) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message,
       });
-
-      return;
     }
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Something went wrong",
     });
   }
 };
 
-export const resetPasswordController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const resetPasswordController = async (req: Request, res: Response) => {
   try {
-    const validatedData = resetPasswordSchema.parse(req.body);
+    const data = resetPasswordSchema.parse(req.body);
 
-    await resetPassword(validatedData);
+    await resetPassword(data);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "Password reset successfully",
+      message: "Password has been reset successfully.",
     });
   } catch (error) {
     if (error instanceof Error) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message,
       });
-
-      return;
     }
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Something went wrong",
     });
   }
 };
