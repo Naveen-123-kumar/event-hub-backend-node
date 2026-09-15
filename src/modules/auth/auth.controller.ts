@@ -19,6 +19,12 @@ import {
   verifyEmail,
 } from "./auth.service";
 
+import {
+  getLinkedInAuthUrl,
+  getLinkedInAccessToken,
+  getLinkedInUserInfo,
+} from "./linkedin.service";
+
 import jwt from "jsonwebtoken";
 import { RefreshToken } from "./auth.model";
 import { google } from "googleapis";
@@ -407,6 +413,92 @@ export const googleCallbackController = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       message: "Google authentication failed",
+    });
+  }
+};
+
+export const linkedinLoginController = (_req: Request, res: Response) => {
+  const authUrl = getLinkedInAuthUrl();
+
+  console.log("LinkedIn Auth URL:", authUrl);
+
+  return res.redirect(authUrl);
+};
+
+export const linkedinCallbackController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { code } = req.query;
+
+    if (!code || typeof code !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "LinkedIn authorization code is missing",
+      });
+    }
+
+    // 1. Exchange authorization code
+    //    for LinkedIn access token
+    const linkedinAccessToken = await getLinkedInAccessToken(code);
+
+    // 2. Get LinkedIn user information
+    const linkedInUser = await getLinkedInUserInfo(linkedinAccessToken);
+
+    if (!linkedInUser.sub) {
+      return res.status(400).json({
+        success: false,
+        message: "LinkedIn user ID not available",
+      });
+    }
+
+    if (!linkedInUser.email) {
+      return res.status(400).json({
+        success: false,
+        message: "LinkedIn email not available",
+      });
+    }
+
+    const linkedinId = linkedInUser.sub;
+
+    // 3. Find existing EventHub user
+    let user = await User.findOne({
+      email: linkedInUser.email,
+    });
+
+    // 4. Create new user
+    if (!user) {
+      user = await User.create({
+        email: linkedInUser.email,
+        isEmailVerified: true,
+        authProvider: "linkedin",
+        providerId: linkedinId,
+      });
+    }
+
+    // 5. Link LinkedIn to existing user
+    else if (!user.providerId) {
+      user.providerId = linkedinId;
+      user.authProvider = "linkedin";
+      user.isEmailVerified = true;
+
+      await user.save();
+    }
+
+    // 6. Generate EventHub access token
+    const eventHubAccessToken = generateAccessToken(user._id.toString());
+
+    // 7. Redirect frontend
+    return res.redirect(
+      `${env.frontendUrl}/oauth-success?token=${eventHubAccessToken}`,
+    );
+  } catch (error) {
+    console.error("LinkedIn authentication error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "LinkedIn authentication failed",
     });
   }
 };

@@ -12,6 +12,8 @@ import {
   verifyEmailController,
   googleLoginController,
   googleCallbackController,
+  linkedinLoginController,
+  linkedinCallbackController,
 } from "./auth.controller";
 
 const router = Router();
@@ -27,5 +29,7 @@ router.post("/validate-otp", validateOtpController);
 router.post("/verify-email", verifyEmailController);
 router.get("/google", googleLoginController);
 router.get("/google/callback", googleCallbackController);
+router.get("/linkedin", linkedinLoginController);
+router.get("/linkedin/callback", linkedinCallbackController);
 
 export default router;
