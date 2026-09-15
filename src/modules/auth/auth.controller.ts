@@ -23,6 +23,7 @@ import jwt from "jsonwebtoken";
 import { RefreshToken } from "./auth.model";
 import { generateAccessToken } from "../../utils/jwt";
 import { env } from "../../config/env";
+
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const validatedData = registerSchema.parse(req.body);

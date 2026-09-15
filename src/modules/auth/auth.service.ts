@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-
 import { User, PasswordResetToken, Otp } from "./auth.model";
 import {
   RegisterInput,
@@ -13,7 +12,10 @@ import {
 } from "./auth.validation";
 import { RefreshToken } from "./auth.model";
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwt";
-import { sendPasswordResetEmail } from "../services/email.service";
+import {
+  sendPasswordResetEmail,
+  sendVerificationOtpEmail,
+} from "../services/email.service";
 import { env } from "../../config/env";
 
 export const registerUser = async (data: RegisterInput) => {
@@ -55,6 +57,11 @@ export const loginUser = async (data: LoginInput) => {
     throw new Error("Invalid email or password");
   }
 
+  // Verify email before allowing login
+  if (!user.isEmailVerified) {
+    throw new Error("Email yet to be verified");
+  }
+
   const accessToken = generateAccessToken(user._id.toString());
 
   const refreshToken = generateRefreshToken(user._id.toString());
@@ -62,15 +69,10 @@ export const loginUser = async (data: LoginInput) => {
   await RefreshToken.create({
     userId: user._id,
     token: refreshToken,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
   });
 
   return {
-    user: {
-      id: user._id,
-      email: user.email,
-      isEmailVerified: user.isEmailVerified,
-    },
     accessToken,
     refreshToken,
   };
@@ -183,6 +185,7 @@ export const generateOtp = async (data: GenerateOtpInput) => {
     expiresAt,
     attempts: 0,
   });
+  await sendVerificationOtpEmail(user.email, otp);
 
   return {
     otp,
@@ -263,7 +266,7 @@ export const verifyEmail = async (data: VerifyEmailInput) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new Error("Invalid OTP");
+    throw new Error("Invalid Email or OTP");
   }
 
   if (user.isEmailVerified) {

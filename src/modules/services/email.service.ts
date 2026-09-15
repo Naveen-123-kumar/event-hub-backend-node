@@ -63,3 +63,64 @@ export const sendPasswordResetEmail = async (
     `,
   });
 };
+
+export const sendVerificationOtpEmail = async (
+  email: string,
+  otp: string,
+): Promise<void> => {
+  await transporter.sendMail({
+    from: env.emailFrom,
+    to: email,
+    subject: "Verify your EventHub email",
+    html: `
+      <div
+        style="
+          font-family: Arial, sans-serif;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        "
+      >
+        <h2>Verify Your EventHub Email</h2>
+
+        <p>
+          Thank you for registering with EventHub.
+          Please use the OTP below to verify your email address.
+        </p>
+
+        <div
+          style="
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            text-align: center;
+            border-radius: 8px;
+          "
+        >
+          <h1
+            style="
+              letter-spacing: 8px;
+              margin: 0;
+            "
+          >
+            ${otp}
+          </h1>
+        </div>
+
+        <p>
+          This OTP will expire in <strong>10 minutes</strong>.
+        </p>
+
+        <p>
+          If you did not create an EventHub account,
+          you can safely ignore this email.
+        </p>
+
+        <p>
+          Regards,<br />
+          EventHub Team
+        </p>
+      </div>
+    `,
+  });
+};
