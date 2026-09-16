@@ -1,10 +1,8 @@
 import { Router } from "express";
-
 import { authenticate } from "../../middleware/auth.middleware";
-
 import { authorize } from "../../middleware/authorization.middleware";
-
 import { Permission } from "../auth/auth.types";
+import { requireOrganizationAccess } from "../../middleware/tenant.middleware";
 
 import {
   createOrganizationController,
@@ -34,6 +32,7 @@ router.get(
   "/:organizationId",
   authenticate,
   authorize(Permission.ORGANIZATION_VIEW),
+  requireOrganizationAccess,
   getOrganizationController,
 );
 
@@ -41,6 +40,7 @@ router.patch(
   "/:organizationId",
   authenticate,
   authorize(Permission.ORGANIZATION_UPDATE),
+  requireOrganizationAccess,
   updateOrganizationController,
 );
 
@@ -48,6 +48,7 @@ router.delete(
   "/:organizationId",
   authenticate,
   authorize(Permission.ORGANIZATION_DELETE),
+  requireOrganizationAccess,
   deleteOrganizationController,
 );
 
