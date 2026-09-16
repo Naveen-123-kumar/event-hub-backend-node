@@ -3,9 +3,7 @@ import axios from "axios";
 import { env } from "../../config/env";
 
 const LINKEDIN_AUTH_URL = "https://www.linkedin.com/oauth/authorization";
-
 const LINKEDIN_TOKEN_URL = "https://www.linkedin.com/oauth/accessToken";
-
 const LINKEDIN_USERINFO_URL = "https://api.linkedin.com/userinfo";
 
 export const getLinkedInAuthUrl = (): string => {

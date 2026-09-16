@@ -33,6 +33,7 @@ import { User } from "./auth.model";
 import { generateAccessToken } from "../../utils/jwt";
 import { getGoogleAuthUrl } from "./google.service";
 
+//Registration
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const validatedData = registerSchema.parse(req.body);
@@ -61,6 +62,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+//Login
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const validatedData = loginSchema.parse(req.body);
@@ -89,6 +91,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+//Refresh access token
 export const refreshAccessToken = async (
   req: Request,
   res: Response,
@@ -152,6 +155,7 @@ export const refreshAccessToken = async (
   }
 };
 
+//Logout
 export const logout = async (req: Request, res: Response): Promise<void> => {
   try {
     const { refreshToken } = req.body;
@@ -190,6 +194,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+//Forgot password
 export const forgotPasswordController = async (req: Request, res: Response) => {
   try {
     const data = forgotPasswordSchema.parse(req.body);
@@ -216,6 +221,7 @@ export const forgotPasswordController = async (req: Request, res: Response) => {
   }
 };
 
+//Reset password
 export const resetPasswordController = async (req: Request, res: Response) => {
   try {
     const data = resetPasswordSchema.parse(req.body);
@@ -241,6 +247,7 @@ export const resetPasswordController = async (req: Request, res: Response) => {
   }
 };
 
+//OTP generator
 export const generateOtpController = async (
   req: Request,
   res: Response,
@@ -272,6 +279,7 @@ export const generateOtpController = async (
   }
 };
 
+//OTP validator
 export const validateOtpController = async (
   req: Request,
   res: Response,
@@ -303,6 +311,7 @@ export const validateOtpController = async (
   }
 };
 
+//Email verification
 export const verifyEmailController = async (
   req: Request,
   res: Response,
@@ -334,6 +343,7 @@ export const verifyEmailController = async (
   }
 };
 
+//Google Auth 2.0
 export const googleLoginController = (_req: Request, res: Response) => {
   const authUrl = getGoogleAuthUrl();
   return res.redirect(authUrl);
@@ -417,11 +427,9 @@ export const googleCallbackController = async (req: Request, res: Response) => {
   }
 };
 
+//Lindedln Auth 2.0
 export const linkedinLoginController = (_req: Request, res: Response) => {
   const authUrl = getLinkedInAuthUrl();
-
-  console.log("LinkedIn Auth URL:", authUrl);
-
   return res.redirect(authUrl);
 };
 
