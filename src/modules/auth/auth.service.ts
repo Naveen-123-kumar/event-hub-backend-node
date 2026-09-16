@@ -17,10 +17,10 @@ import {
   sendVerificationOtpEmail,
 } from "../services/email.service";
 import { env } from "../../config/env";
+import { UserRole } from "./auth.types";
 
 export const registerUser = async (data: RegisterInput) => {
   const { email, password } = data;
-
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
@@ -32,11 +32,14 @@ export const registerUser = async (data: RegisterInput) => {
   const user = await User.create({
     email,
     password: hashedPassword,
+    isEmailVerified: false,
+    role: UserRole.CUSTOMER,
   });
 
   return {
     id: user._id,
     email: user.email,
+    role: user.role,
     isEmailVerified: user.isEmailVerified,
     createdAt: user.createdAt,
   };
@@ -62,7 +65,11 @@ export const loginUser = async (data: LoginInput) => {
     throw new Error("Email yet to be verified");
   }
 
-  const accessToken = generateAccessToken(user._id.toString());
+  const accessToken = generateAccessToken({
+    userId: user._id.toString(),
+    role: user.role,
+    organizationId: user.organizationId?.toString(),
+  });
 
   const refreshToken = generateRefreshToken(user._id.toString());
 

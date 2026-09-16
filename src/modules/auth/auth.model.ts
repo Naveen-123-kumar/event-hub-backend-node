@@ -1,12 +1,14 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, model, Types } from "mongoose";
+import { UserRole } from "./auth.types";
 
 export interface IUser extends Document {
   email: string;
   password: string;
   isEmailVerified: boolean;
   authProvider: "local" | "google" | "linkedin";
-
   providerId?: string;
+  role: UserRole;
+  organizationId?: Types.ObjectId | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -86,6 +88,19 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ["local", "google", "linkedin"],
       default: "local",
+    },
+
+    role: {
+      type: String,
+      enum: Object.values(UserRole),
+      default: UserRole.CUSTOMER,
+      required: true,
+    },
+
+    organizationId: {
+      type: Schema.Types.ObjectId,
+      ref: "Organization",
+      default: null,
     },
 
     providerId: {

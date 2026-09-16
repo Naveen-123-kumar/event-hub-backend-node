@@ -32,6 +32,7 @@ import { env } from "../../config/env";
 import { User } from "./auth.model";
 import { generateAccessToken } from "../../utils/jwt";
 import { getGoogleAuthUrl } from "./google.service";
+import { UserRole } from "./auth.types";
 
 //Registration
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -137,9 +138,22 @@ export const refreshAccessToken = async (
     const decoded = jwt.verify(refreshToken, env.jwtSecret) as {
       userId: string;
     };
+    const user = await User.findById(decoded.userId);
 
-    const accessToken = generateAccessToken(decoded.userId);
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
 
+      return;
+    }
+
+    const accessToken = generateAccessToken({
+      userId: user._id.toString(),
+      role: user.role,
+      organizationId: user.organizationId?.toString(),
+    });
     res.status(200).json({
       success: true,
       message: "Access token refreshed successfully",
@@ -403,6 +417,7 @@ export const googleCallbackController = async (req: Request, res: Response) => {
         isEmailVerified: true,
         authProvider: "google",
         providerId: googleId,
+        role: UserRole.CUSTOMER,
       });
     } else if (!user.providerId) {
       user.providerId = googleId;
@@ -412,7 +427,11 @@ export const googleCallbackController = async (req: Request, res: Response) => {
       await user.save();
     }
 
-    const accessToken = generateAccessToken(user._id.toString());
+    const accessToken = generateAccessToken({
+      userId: user._id.toString(),
+      role: user.role,
+      organizationId: user.organizationId?.toString(),
+    });
 
     return res.redirect(
       `${env.frontendUrl}/oauth-success?token=${accessToken}`,
@@ -482,6 +501,7 @@ export const linkedinCallbackController = async (
         isEmailVerified: true,
         authProvider: "linkedin",
         providerId: linkedinId,
+        role: UserRole.CUSTOMER,
       });
     }
 
@@ -495,8 +515,11 @@ export const linkedinCallbackController = async (
     }
 
     // 6. Generate EventHub access token
-    const eventHubAccessToken = generateAccessToken(user._id.toString());
-
+    const eventHubAccessToken = generateAccessToken({
+      userId: user._id.toString(),
+      role: user.role,
+      organizationId: user.organizationId?.toString(),
+    });
     // 7. Redirect frontend
     return res.redirect(
       `${env.frontendUrl}/oauth-success?token=${eventHubAccessToken}`,

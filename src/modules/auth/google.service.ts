@@ -1,5 +1,7 @@
 import { google } from "googleapis";
 import { env } from "../../config/env";
+import { User } from "./auth.model";
+import { UserRole } from "./auth.types";
 
 export const googleOAuth2Client = new google.auth.OAuth2(
   env.googleClientId,
