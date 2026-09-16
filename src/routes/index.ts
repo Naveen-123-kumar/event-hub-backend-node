@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authRoutes from "../modules/auth/auth.routes";
+import organizationRoutes from "../modules/organizations/organization.routes";
 
 const router = Router();
 
@@ -9,7 +10,9 @@ router.get("/health", (_req, res) => {
     message: "Server is healthy",
   });
 });
-
+//Auth
 router.use("/auth", authRoutes);
+
+router.use("/organizations", organizationRoutes);
 
 export default router;
