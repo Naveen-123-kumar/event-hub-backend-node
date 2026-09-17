@@ -36,7 +36,7 @@ export const requireOrganizationAccess = (
     });
   }
 
-  if (req.user.organizationId !== organizationId) {
+  if (req.user.organizationId.toString() !== organizationId.toString()) {
     return res.status(403).json({
       success: false,
       message: "Access denied for this organization",
