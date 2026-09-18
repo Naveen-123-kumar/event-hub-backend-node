@@ -2,9 +2,7 @@ import { Types } from "mongoose";
 
 import { Event } from "../modules/events/event.model";
 import { EventStatus } from "../modules/events/event.types";
-
 import { Ticket } from "./ticket.model";
-
 import {
   CreateTicketInput,
   TicketStatus,
@@ -44,18 +42,13 @@ export const createTicket = async (
   const ticket = await Ticket.create({
     eventId,
     organizationId,
-
     name: data.name,
     description: data.description,
-
     price: data.price,
-
     quantity: data.quantity,
     availableQuantity: data.quantity,
-
     saleStartDate: data.saleStartDate,
     saleEndDate: data.saleEndDate,
-
     status: TicketStatus.ACTIVE,
   });
 
@@ -122,7 +115,6 @@ export const updateTicket = async (
   }
 
   const soldQuantity = ticket.quantity - ticket.availableQuantity;
-
   if (data.quantity !== undefined && data.quantity < soldQuantity) {
     throw new Error(
       `Quantity cannot be less than sold quantity (${soldQuantity})`,

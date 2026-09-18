@@ -9,7 +9,6 @@ export const allowRoles = (...allowedRoles: UserRole[]) => {
         success: false,
         message: "Authentication required",
       });
-
       return;
     }
 

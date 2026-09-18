@@ -29,12 +29,6 @@ export const createPaymentOrder = async ({
     };
   }
 
-  /**
-   * Razorpay expects amount in the smallest
-   * currency unit.
-   *
-   * ₹500 = 50000 paise
-   */
   const razorpayOrder = await razorpay.orders.create({
     amount: Math.round(amount * 100),
     currency,

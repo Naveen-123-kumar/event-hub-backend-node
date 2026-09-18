@@ -5,20 +5,14 @@ import { TicketStatus } from "./ticket.types";
 export interface ITicket {
   eventId: Types.ObjectId;
   organizationId: Types.ObjectId;
-
   name: string;
   description?: string;
-
   price: number;
-
   quantity: number;
   availableQuantity: number;
-
   saleStartDate: Date;
   saleEndDate: Date;
-
   status: TicketStatus;
-
   createdAt: Date;
   updatedAt: Date;
 }

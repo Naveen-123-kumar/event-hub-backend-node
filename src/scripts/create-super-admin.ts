@@ -1,27 +1,22 @@
 import bcrypt from "bcrypt";
-
 import { connectDatabase } from "../config/database";
 import { env } from "../config/env";
-
 import { User } from "../modules/auth/auth.model";
 import { UserRole } from "../modules/auth/auth.types";
 
 const createSuperAdmin = async (): Promise<void> => {
   try {
     await connectDatabase();
-
     const existingSuperAdmin = await User.findOne({
       role: UserRole.SUPER_ADMIN,
     });
 
     if (existingSuperAdmin) {
       console.log("Super Admin already exists.");
-
       process.exit(0);
     }
 
     const email = process.env.SUPER_ADMIN_EMAIL;
-
     const password = process.env.SUPER_ADMIN_PASSWORD;
 
     if (!email || !password) {
@@ -31,7 +26,6 @@ const createSuperAdmin = async (): Promise<void> => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-
     await User.create({
       email,
       password: hashedPassword,

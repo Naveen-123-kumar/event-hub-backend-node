@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import {
   createEvent,
   deleteEvent,
@@ -8,12 +7,12 @@ import {
   publishEvent,
   updateEvent,
 } from "./event.service";
-
 import {
   createEventSchema,
   eventIdSchema,
   updateEventSchema,
 } from "./event.schema";
+
 export const createEventController = async (req: Request, res: Response) => {
   try {
     if (!req.user) {
@@ -22,7 +21,6 @@ export const createEventController = async (req: Request, res: Response) => {
         message: "Authentication required",
       });
     }
-
     if (!req.user.organizationId) {
       return res.status(403).json({
         success: false,
@@ -31,9 +29,7 @@ export const createEventController = async (req: Request, res: Response) => {
     }
 
     const data = createEventSchema.parse(req.body);
-
     const event = await createEvent(data, req.user.organizationId, req.user.id);
-
     return res.status(201).json({
       success: true,
       message: "Event created successfully",
@@ -51,9 +47,7 @@ export const createEventController = async (req: Request, res: Response) => {
 export const getEventsController = async (req: Request, res: Response) => {
   try {
     const organizationId = req.user?.organizationId;
-
     const events = await getEvents(organizationId);
-
     return res.status(200).json({
       success: true,
       data: events,
@@ -70,9 +64,7 @@ export const getEventsController = async (req: Request, res: Response) => {
 export const getEventController = async (req: Request, res: Response) => {
   try {
     const { eventId } = eventIdSchema.parse(req.params);
-
     const event = await getEventById(eventId, req.user?.organizationId);
-
     return res.status(200).json({
       success: true,
       data: event,
@@ -93,13 +85,9 @@ export const updateEventController = async (req: Request, res: Response) => {
         message: "Organization access required",
       });
     }
-
     const { eventId } = eventIdSchema.parse(req.params);
-
     const data = updateEventSchema.parse(req.body);
-
     const event = await updateEvent(eventId, data, req.user.organizationId);
-
     return res.status(200).json({
       success: true,
       message: "Event updated successfully",
@@ -124,9 +112,7 @@ export const deleteEventController = async (req: Request, res: Response) => {
     }
 
     const { eventId } = eventIdSchema.parse(req.params);
-
     await deleteEvent(eventId, req.user.organizationId);
-
     return res.status(200).json({
       success: true,
       message: "Event deleted successfully",
@@ -150,9 +136,7 @@ export const publishEventController = async (req: Request, res: Response) => {
     }
 
     const { eventId } = eventIdSchema.parse(req.params);
-
     const event = await publishEvent(eventId, req.user.organizationId);
-
     return res.status(200).json({
       success: true,
       message: "Event published successfully",

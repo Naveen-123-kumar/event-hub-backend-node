@@ -21,17 +21,10 @@ export enum WebhookStatus {
   FAILED = "failed",
 }
 
-/**
- * Create Razorpay payment order
- */
 export interface CreatePaymentInput {
   bookingId: string;
 }
 
-/**
- * Data required to verify payment
- * after Razorpay Checkout.
- */
 export interface VerifyPaymentInput {
   paymentId: string;
   razorpayOrderId: string;
@@ -39,10 +32,6 @@ export interface VerifyPaymentInput {
   razorpaySignature: string;
 }
 
-/**
- * Response returned when a Razorpay
- * order is successfully created.
- */
 export interface CreatePaymentResponse {
   paymentId: string;
   razorpayOrderId: string;
@@ -51,17 +40,11 @@ export interface CreatePaymentResponse {
   keyId: string;
 }
 
-/**
- * Razorpay webhook headers.
- */
 export interface RazorpayWebhookHeaders {
   signature: string;
   eventId: string;
 }
 
-/**
- * Generic Razorpay webhook payload.
- */
 export interface RazorpayWebhookPayload {
   entity: string;
   account_id: string;

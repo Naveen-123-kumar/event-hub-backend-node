@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-
 import { UserRole } from "../modules/auth/auth.types";
 
 export const requireOrganizationAccess = (
@@ -28,7 +27,6 @@ export const requireOrganizationAccess = (
   }
 
   const { organizationId } = req.params;
-
   if (!organizationId) {
     return res.status(400).json({
       success: false,
@@ -42,6 +40,5 @@ export const requireOrganizationAccess = (
       message: "Access denied for this organization",
     });
   }
-
   next();
 };

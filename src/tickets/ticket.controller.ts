@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import {
   createTicket,
   deleteTicket,
@@ -14,6 +13,7 @@ import {
   ticketIdSchema,
   updateTicketSchema,
 } from "./ticket.schema";
+
 export const createTicketController = async (req: Request, res: Response) => {
   try {
     if (!req.user?.organizationId) {
@@ -24,9 +24,7 @@ export const createTicketController = async (req: Request, res: Response) => {
     }
 
     const { eventId } = eventIdSchema.parse(req.params);
-
     const data = createTicketSchema.parse(req.body);
-
     const ticket = await createTicket(eventId, req.user.organizationId, data);
 
     return res.status(201).json({
@@ -48,9 +46,7 @@ export const getEventTicketsController = async (
 ) => {
   try {
     const { eventId } = eventIdSchema.parse(req.params);
-
     const tickets = await getEventTickets(eventId, req.user?.organizationId);
-
     return res.status(200).json({
       success: true,
       data: tickets,
@@ -66,9 +62,7 @@ export const getEventTicketsController = async (
 export const getTicketController = async (req: Request, res: Response) => {
   try {
     const { ticketId } = ticketIdSchema.parse(req.params);
-
     const ticket = await getTicketById(ticketId, req.user?.organizationId);
-
     return res.status(200).json({
       success: true,
       data: ticket,
@@ -91,11 +85,8 @@ export const updateTicketController = async (req: Request, res: Response) => {
     }
 
     const { ticketId } = ticketIdSchema.parse(req.params);
-
     const data = updateTicketSchema.parse(req.body);
-
     const ticket = await updateTicket(ticketId, req.user.organizationId, data);
-
     return res.status(200).json({
       success: true,
       message: "Ticket updated successfully",
@@ -119,9 +110,7 @@ export const deleteTicketController = async (req: Request, res: Response) => {
     }
 
     const { ticketId } = ticketIdSchema.parse(req.params);
-
     await deleteTicket(ticketId, req.user.organizationId);
-
     return res.status(200).json({
       success: true,
       message: "Ticket deleted successfully",

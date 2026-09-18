@@ -2,9 +2,6 @@ import { Payment } from "./payment.model";
 import { PaymentStatus } from "./payment.types";
 
 export class PaymentRepository {
-  /**
-   * Create a new payment record
-   */
   async createPayment(data: {
     bookingId: string;
     razorpayOrderId: string;
@@ -21,16 +18,14 @@ export class PaymentRepository {
     });
   }
 
-  /**
-   * Find payment by internal payment ID
-   */
+  // Find payment by internal payment ID
+
   async findById(paymentId: string): Promise<Payment | null> {
     return Payment.findByPk(paymentId);
   }
 
-  /**
-   * Find payment by booking ID
-   */
+  //Find payment by booking ID
+
   async findByBookingId(bookingId: string): Promise<Payment | null> {
     return Payment.findOne({
       where: {
@@ -40,9 +35,8 @@ export class PaymentRepository {
     });
   }
 
-  /**
-   * Find payment by Razorpay order ID
-   */
+  //Find payment by Razorpay order ID
+
   async findByRazorpayOrderId(
     razorpayOrderId: string,
   ): Promise<Payment | null> {
@@ -53,9 +47,8 @@ export class PaymentRepository {
     });
   }
 
-  /**
-   * Find payment by Razorpay payment ID
-   */
+  // Find payment by Razorpay payment ID
+
   async findByRazorpayPaymentId(
     razorpayPaymentId: string,
   ): Promise<Payment | null> {
@@ -66,9 +59,8 @@ export class PaymentRepository {
     });
   }
 
-  /**
-   * Update payment after successful verification
-   */
+  //Update payment after successful verification
+
   async markAsSuccess(
     paymentId: string,
     razorpayPaymentId: string,
@@ -93,9 +85,8 @@ export class PaymentRepository {
     );
   }
 
-  /**
-   * Mark payment as failed
-   */
+  //Mark payment as failed
+
   async markAsFailed(
     paymentId: string,
     failureReason: string,
@@ -116,9 +107,8 @@ export class PaymentRepository {
     );
   }
 
-  /**
-   * Mark payment as cancelled
-   */
+  //Mark payment as cancelled
+
   async markAsCancelled(paymentId: string): Promise<[number, Payment[]]> {
     return Payment.update(
       {
@@ -133,9 +123,7 @@ export class PaymentRepository {
     );
   }
 
-  /**
-   * Mark payment as refunded
-   */
+  // Mark payment as refunded
   async markAsRefunded(
     paymentId: string,
     refundedAt: Date = new Date(),
@@ -154,9 +142,8 @@ export class PaymentRepository {
     );
   }
 
-  /**
-   * Check whether a successful payment already exists for a booking
-   */
+  //Check whether a successful payment already exists for a booking
+
   async hasSuccessfulPayment(bookingId: string): Promise<boolean> {
     const payment = await Payment.findOne({
       where: {
@@ -168,12 +155,6 @@ export class PaymentRepository {
     return Boolean(payment);
   }
 
-  /**
-   * Find an existing active payment for a booking
-   *
-   * Useful for preventing multiple Pay Now clicks
-   * from creating multiple Razorpay orders.
-   */
   async findActivePayment(bookingId: string): Promise<Payment | null> {
     return Payment.findOne({
       where: {

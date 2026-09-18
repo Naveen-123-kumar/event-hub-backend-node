@@ -11,15 +11,10 @@ export const ticketIdSchema = z.object({
 export const createTicketSchema = z
   .object({
     name: z.string().trim().min(2, "Ticket name is required").max(150),
-
     description: z.string().trim().max(1000).optional(),
-
     price: z.number().min(0, "Price cannot be negative"),
-
     quantity: z.number().int().positive("Quantity must be greater than zero"),
-
     saleStartDate: z.coerce.date(),
-
     saleEndDate: z.coerce.date(),
   })
   .refine((data) => data.saleEndDate > data.saleStartDate, {
@@ -30,15 +25,10 @@ export const createTicketSchema = z
 export const updateTicketSchema = z
   .object({
     name: z.string().trim().min(2).max(150).optional(),
-
     description: z.string().trim().max(1000).optional(),
-
     price: z.number().min(0).optional(),
-
     quantity: z.number().int().positive().optional(),
-
     saleStartDate: z.coerce.date().optional(),
-
     saleEndDate: z.coerce.date().optional(),
   })
   .refine(
@@ -46,7 +36,6 @@ export const updateTicketSchema = z
       if (data.saleStartDate && data.saleEndDate) {
         return data.saleEndDate > data.saleStartDate;
       }
-
       return true;
     },
     {

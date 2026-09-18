@@ -69,7 +69,6 @@ export class Payment extends Model {
 
   /**
    * Amount stored in smallest currency unit.
-   *
    * Example:
    * ₹500 = 50000 paise
    */
