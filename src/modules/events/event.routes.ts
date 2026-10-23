@@ -3,7 +3,6 @@ import { Router } from "express";
 import { authenticate } from "../../middleware/auth.middleware";
 import { authorize } from "../../middleware/authorization.middleware";
 import { requireOrganizationAccess } from "../../middleware/tenant.middleware";
-
 import { Permission } from "../auth/auth.types";
 
 import {
